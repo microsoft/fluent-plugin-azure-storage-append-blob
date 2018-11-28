@@ -39,7 +39,7 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
       assert_equal 'dGVzdF9zdG9yYWdlX2FjY2Vzc19rZXk=', d.instance.azure_storage_access_key
       assert_equal 'test_container', d.instance.azure_container
       assert_equal true, d.instance.auto_create_container
-      assert_equal '%{path}%{time_slice}.log', d.instance.azure_object_key_format
+      assert_equal '%{path}%{time_slice}-%{index}.log', d.instance.azure_object_key_format
     end
   end
 
