@@ -10,7 +10,7 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
 
   CONFIG = %[
     azure_storage_account test_storage_account
-    azure_storage_access_key dGVzdF9zdG9yYWdlX2FjY2Vzc19rZXk=
+    azure_storage_access_key 
     azure_container test_container
     time_slice_format        %Y%m%d-%H
     path log
@@ -25,7 +25,7 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
       assert_raise Fluent::ConfigError do
         create_driver(%[
           azure_storage_account test_storage_account
-          azure_storage_access_key dGVzdF9zdG9yYWdlX2FjY2Vzc19rZXk=
+          azure_storage_access_key
           time_slice_format        %Y%m%d-%H
           time_slice_wait          10m
           path log
@@ -36,7 +36,7 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
      test 'config should set instance variables' do
       d = create_driver
       assert_equal 'test_storage_account', d.instance.azure_storage_account
-      assert_equal 'dGVzdF9zdG9yYWdlX2FjY2Vzc19rZXk=', d.instance.azure_storage_access_key
+      assert_equal '', d.instance.azure_storage_access_key
       assert_equal 'test_container', d.instance.azure_container
       assert_equal true, d.instance.auto_create_container
       assert_equal '%{path}%{time_slice}-%{index}.log', d.instance.azure_object_key_format
