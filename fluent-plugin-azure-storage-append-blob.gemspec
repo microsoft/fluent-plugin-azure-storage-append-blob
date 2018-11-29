@@ -4,12 +4,12 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   spec.name    = "fluent-plugin-azure-storage-append-blob"
   spec.version = "0.1.0"
-  spec.authors = ["Microsoft"]
+  spec.authors = ["Microsoft Corporation"]
   spec.email   = [""]
 
   spec.summary       = "Azure Storage Append Blob output plugin for Fluentd event collector"
-  spec.description   = spec.summary
-  # spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.description   = "Fluentd plugin to upload logs to Azure Storage append blobs."
+  spec.homepage      = "https://github.com/Microsoft/fluent-plugin-azure-storage-append-blob"
   spec.license       = "MIT"
 
   test_files, files  = `git ls-files -z`.split("\x0").partition do |f|
@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "test-unit", "~> 3.0"
   spec.add_runtime_dependency "fluentd", [">= 0.14.10", "< 2"]
-  spec.add_runtime_dependency "azure-storage-blob", "~> 1.0.0"
+  spec.add_runtime_dependency "azure-storage-blob", "~> 1.0"
 end
