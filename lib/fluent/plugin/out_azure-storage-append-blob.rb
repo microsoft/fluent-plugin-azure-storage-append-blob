@@ -96,7 +96,7 @@ module Fluent
 
           content = File.open(tmp.path, 'rb') { |file| file.read }
 
-          append_blob(content)
+          append_blob(content, metadata)
           @last_azure_storage_path = @azure_storage_path
         ensure
           tmp.unlink
@@ -133,7 +133,7 @@ module Fluent
       end
 
       private
-      def append_blob(content)
+      def append_blob(content, metadata)
         position = 0
         log.debug "azure_storage_append_blob: append_blob.start: Content size: #{content.length}"
         loop do
@@ -149,7 +149,7 @@ module Fluent
             if status_code == 409 # exceeds azure block limit
               @current_index += 1
               old_azure_storage_path = @azure_storage_path
-              generate_log_name(metadata, time_slice, @current_index)
+              generate_log_name(metadata, @current_index)
 
               # If index is not a part of format, rethrow exception.
               if old_azure_storage_path == @azure_storage_path
