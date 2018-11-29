@@ -53,7 +53,7 @@ $ bundle
 
 ### azure_storage_account (Required)
 
-Your Azure Storage Account Name. This can be got from Azure Management potal.
+Your Azure Storage Account Name. This can be retrieved from Azure Management potal.
 This parameter is required when environment variable 'AZURE_STORAGE_ACCOUNT' is not set.
 
 ### azure_storage_access_key (Required)
@@ -67,8 +67,8 @@ Azure Storage Container name
 
 ### auto_create_container
 
-This plugin create container if not exist when you set 'auto_create_container' to true.
-Default: true
+This plugin creates the Azure container if it does not already exist exist when you set 'auto_create_container' to true.
+The default value is `true`
 
 ### azure_object_key_format
 
@@ -110,7 +110,7 @@ You get:
 "log/events/ts=20130112-00/events.log"
 ```
 
-The [fluent-mixin-config-placeholders](https://github.com/tagomoris/fluent-mixin-config-placeholders) mixin is also incorporated, so additional variables such as %{hostname}, etc. can be used in the azure_object_key_format. This could prove useful in preventing filename conflicts when writing from multiple servers.
+The [fluent-mixin-config-placeholders](https://github.com/tagomoris/fluent-mixin-config-placeholders) mixin is also incorporated, so additional variables such as %{hostname}, etc. can be used in the `azure_object_key_format`. This is useful in preventing filename conflicts when writing from multiple servers.
 
 ```
 azure_object_key_format %{path}/events/ts=%{time_slice}/events-%{hostname}.log
@@ -118,7 +118,7 @@ azure_object_key_format %{path}/events/ts=%{time_slice}/events-%{hostname}.log
 
 ### time_slice_format
 
-Format of the time used as the file name. Default is '%Y%m%d'. Use '%Y%m%d%H' to split files hourly.
+Format of the time used in the file name. Default is '%Y%m%d'. Use '%Y%m%d%H' to split files hourly.
 
 ### Run tests
     $ gem install bundler
