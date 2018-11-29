@@ -1,4 +1,4 @@
-# fluent-plugin-AzureStorageAppend
+# fluent-plugin-azure-storage-append-blob
 
 [Fluentd](https://fluentd.org/) out plugin to do something.
 
@@ -54,12 +54,10 @@ $ bundle
 ### azure_storage_account (Required)
 
 Your Azure Storage Account Name. This can be retrieved from Azure Management potal.
-This parameter is required when environment variable 'AZURE_STORAGE_ACCOUNT' is not set.
 
 ### azure_storage_access_key (Required)
 
-Your Azure Storage Access Key(Primary or Secondary). This also can be got from Azure Management potal.
-This parameter is required when environment variable 'AZURE_STORAGE_ACCESS_KEY' is not set.
+Your Azure Storage Access Key(Primary or Secondary). This also can be retrieved from Azure Management potal.
 
 ### azure_container (Required)
 
