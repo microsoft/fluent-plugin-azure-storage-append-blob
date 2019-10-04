@@ -57,7 +57,7 @@ Your Azure Storage Account Name. This can be retrieved from Azure Management por
 
 ### azure_storage_access_key (Required)
 
-Your Azure Storage Access Key(Primary or Secondary). This also can be retrieved from Azure Management portal.
+Your Azure Storage Access Key (Primary or Secondary). This also can be retrieved from Azure Management portal.
 
 ### azure_container (Required)
 
