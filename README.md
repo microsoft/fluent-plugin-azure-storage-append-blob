@@ -37,7 +37,7 @@ $ bundle
   azure_container          <your azure storage container>
   auto_create_container    true
   path logs/
-  azure_blob_name_format   %{path}%{time_slice}_%{index}.log
+  azure_object_key_format  %{path}%{time_slice}_%{index}.log
   time_slice_format        %Y%m%d-%H
   # if you want to use %{tag} or %Y/%m/%d/ like syntax in path / azure_blob_name_format,
   # need to specify tag for %{tag} and time for %Y/%m/%d in <buffer> argument.
