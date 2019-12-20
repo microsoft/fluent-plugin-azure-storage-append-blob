@@ -16,6 +16,7 @@ module Fluent
       helpers :formatter, :inject
 
       DEFAULT_FORMAT_TYPE = "out_file"
+      AZURE_BLOCK_SIZE_LIMIT = 4 * 1024 * 1024 - 1
   
       config_param :path, :string, :default => ""
       config_param :azure_storage_account, :string, :default => nil
@@ -25,9 +26,6 @@ module Fluent
       config_param :auto_create_container, :bool, :default => true
       config_param :format, :string, :default => DEFAULT_FORMAT_TYPE
       config_param :time_slice_format, :string, :default => '%Y%m%d'
-  
-      DEFAULT_FORMAT_TYPE = "out_file"
-      AZURE_BLOCK_SIZE_LIMIT = 4 * 1024 * 1024 - 1
   
       config_section :format do
         config_set_default :@type, DEFAULT_FORMAT_TYPE
