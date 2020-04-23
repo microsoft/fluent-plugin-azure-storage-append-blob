@@ -51,24 +51,25 @@ $ bundle
 </match>
 ```
 
-### azure_storage_account (Required)
+### `azure_storage_account` (Required)
 
 Your Azure Storage Account Name. This can be retrieved from Azure Management portal.
 
-### azure_storage_access_key (Required)
+### `azure_storage_access_key` or `azure_storage_sas_token` (Required)
 
-Your Azure Storage Access Key (Primary or Secondary). This also can be retrieved from Azure Management portal.
+Your Azure Storage Access Key (Primary or Secondary) or shared access signature (SAS) token.
+This also can be retrieved from Azure Management portal.
 
-### azure_container (Required)
+### `azure_container` (Required)
 
 Azure Storage Container name
 
-### auto_create_container
+### `auto_create_container`
 
 This plugin creates the Azure container if it does not already exist exist when you set 'auto_create_container' to true.
 The default value is `true`
 
-### azure_object_key_format
+### `azure_object_key_format`
 
 The format of Azure Storage object keys. You can use several built-in variables:
 
@@ -114,7 +115,7 @@ The [fluent-mixin-config-placeholders](https://github.com/tagomoris/fluent-mixin
 azure_object_key_format %{path}/events/ts=%{time_slice}/events-%{hostname}.log
 ```
 
-### time_slice_format
+### `time_slice_format`
 
 Format of the time used in the file name. Default is '%Y%m%d'. Use '%Y%m%d%H' to split files hourly.
 
