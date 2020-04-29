@@ -57,6 +57,10 @@ module Fluent
         if @azure_container.nil?
           raise ConfigError, 'azure_container is needed'
         end
+
+        if @azure_storage_access_key.nil? && @azure_storage_sas_token.nil?
+          raise ConfigError, "either 'azure_storage_access_key' or 'azure_storage_sas_token' parameter must be provided"
+        end
       end
   
       def multi_workers_ready?
