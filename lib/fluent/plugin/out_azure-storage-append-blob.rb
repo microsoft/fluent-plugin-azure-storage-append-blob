@@ -21,6 +21,7 @@ module Fluent
       config_param :path, :string, :default => ""
       config_param :azure_storage_account, :string, :default => nil
       config_param :azure_storage_access_key, :string, :default => nil, :secret => true
+      config_param :azure_storage_sas_token, :string, :default => nil, :secret => true
       config_param :azure_container, :string, :default => nil
       config_param :azure_object_key_format, :string, :default => "%{path}%{time_slice}-%{index}.log"
       config_param :auto_create_container, :bool, :default => true
@@ -56,6 +57,10 @@ module Fluent
         if @azure_container.nil?
           raise ConfigError, 'azure_container is needed'
         end
+
+        if @azure_storage_access_key.nil? && @azure_storage_sas_token.nil?
+          raise ConfigError, "either 'azure_storage_access_key' or 'azure_storage_sas_token' parameter must be provided"
+        end
       end
   
       def multi_workers_ready?
@@ -65,7 +70,17 @@ module Fluent
       def start
         super
   
-        @bs = Azure::Storage::Blob::BlobService.create(storage_account_name: @azure_storage_account, storage_access_key: @azure_storage_access_key)
+        @bs_params = {storage_account_name: @azure_storage_account}
+
+        if !@azure_storage_access_key.nil?
+          @bs_params.merge!({storage_access_key: @azure_storage_access_key})
+        end
+
+        if !@azure_storage_sas_token.nil?
+          @bs_params.merge!({storage_sas_token: @azure_storage_sas_token})
+        end
+
+        @bs = Azure::Storage::Blob::BlobService.create(@bs_params)
   
         ensure_container
 
