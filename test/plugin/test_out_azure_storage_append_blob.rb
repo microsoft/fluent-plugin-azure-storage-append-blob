@@ -19,6 +19,8 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
   MSI_CONFIG = %(
     azure_storage_account test_storage_account
     azure_container test_container
+    azure_imds_api_version 1970-01-01
+    azure_token_refresh_interval 120
     time_slice_format        %Y%m%d-%H
     path log
   ).freeze
@@ -56,6 +58,8 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
       assert_equal true, d.instance.use_msi
       assert_equal true, d.instance.auto_create_container
       assert_equal '%{path}%{time_slice}-%{index}.log', d.instance.azure_object_key_format
+      assert_equal 120, d.instance.azure_token_refresh_interval
+      assert_equal '1970-01-01', d.instance.azure_imds_api_version
     end
   end
 

@@ -25,14 +25,16 @@ And then execute:
     <match pattern>
       type azure-storage-append-blob
 
-      azure_storage_account    <your azure storage account>
-      azure_storage_access_key <your azure storage access key> # leave empty to use MSI
-      azure_storage_sas_token  <your azure storage sas token> # leave empty to use MSI
-      azure_container          <your azure storage container>
-      auto_create_container    true
-      path                     logs/
-      azure_object_key_format  %{path}%{time_slice}_%{index}.log
-      time_slice_format        %Y%m%d-%H
+      azure_storage_account             <your azure storage account>
+      azure_storage_access_key          <your azure storage access key> # leave empty to use MSI
+      azure_storage_sas_token           <your azure storage sas token> # leave empty to use MSI
+      azure_imds_api_version            <Azure Instance Metadata Service API Version> # only used for MSI
+      azure_token_refresh_interval      <refresh interval in min> # only used for MSI
+      azure_container                   <your azure storage container>
+      auto_create_container             true
+      path                              logs/
+      azure_object_key_format           %{path}%{time_slice}_%{index}.log
+      time_slice_format                 %Y%m%d-%H
       # if you want to use %{tag} or %Y/%m/%d/ like syntax in path / azure_blob_name_format,
       # need to specify tag for %{tag} and time for %Y/%m/%d in <buffer> argument.
       <buffer tag,time>
@@ -55,7 +57,21 @@ This also can be retrieved from Azure Management portal.
 
 If both are empty, the plugin will use the local Managed Identity endpoint to obtain a token for the target storage account.
 
-### azure_container (Required)
+### `azure_imds_api_version` (Optional, only for MSI)
+
+Default: 2019-08-15
+
+The Instance Metadata Service is used during the OAuth flow to obtain an access token. This API is versioned and specifying the version is mandatory.
+
+See [here](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/instance-metadata-service#versioning) for more details.
+
+### `azure_token_refresh_interval` (Optional, only for MSI)
+
+Default: 60 (1 hour)
+
+When using MSI, the initial access token needs to be refreshed periodically.
+
+### `azure_container` (Required)
 
 Azure Storage Container name
 

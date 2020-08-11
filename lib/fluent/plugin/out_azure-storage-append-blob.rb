@@ -24,6 +24,8 @@ module Fluent
       config_param :azure_storage_access_key, :string, default: nil, secret: true
       config_param :azure_storage_sas_token, :string, default: nil, secret: true
       config_param :azure_container, :string, default: nil
+      config_param :azure_imds_api_version, :string, default: '2019-08-15'
+      config_param :azure_token_refresh_interval, :integer, default: 60
       config_param :use_msi, :bool, default: false
       config_param :azure_object_key_format, :string, default: '%{path}%{time_slice}-%{index}.log'
       config_param :auto_create_container, :bool, default: true
@@ -73,7 +75,7 @@ module Fluent
 
       def get_access_token
         access_key_request = Faraday.new('http://169.254.169.254/metadata/identity/oauth2/token?' \
-                                         'api-version=2019-08-15' \
+                                         "api-version=#{@azure_imds_api_version}" \
                                          '&resource=https://storage.azure.com/',
                                          headers: { 'Metadata' => 'true' })
                                     .get
@@ -88,15 +90,13 @@ module Fluent
           token_signer = Azure::Storage::Common::Core::Auth::TokenSigner.new token_credential
           @bs = Azure::Storage::Blob::BlobService.new(storage_account_name: @azure_storage_account, signer: token_signer)
 
-          # Refresh interval is 50 minutes
-          refresh_interval = 50 * 60
-          # The user-defined thread that renews the access token
+          refresh_interval = @azure_token_refresh_interval * 60
           cancelled = false
           renew_token = Thread.new do
             Thread.stop
             until cancelled
               sleep(refresh_interval)
-              # Update the access token to the credential
+
               token_credential.renew_token get_access_token
             end
           end
