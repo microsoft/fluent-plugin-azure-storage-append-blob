@@ -128,6 +128,33 @@ Format of the time used in the file name. Default is '%Y%m%d'. Use '%Y%m%d%H' to
     bundle install
     bundle exec rake test
 
+
+### Test Fluentd
+
+1. Create Storage Account and VM with enabled MSI
+2. Setup Docker ang Git
+3. SSH into VM
+4. Download this repo
+   ```
+   git clone https://github.com/microsoft/fluent-plugin-azure-storage-append-blob.git
+   cd fluent-plugin-azure-storage-append-blob
+   ```
+5. Build Docker image
+   `docker build -t fluent .`
+6. Run Docker image with different set of parameters:
+
+    1. `STORAGE_ACCOUNT`: required, name of your storage account
+    2. `STORAGE_ACCESS_KEY`: storage account access key
+    3. `STORAGE_SAS_TOKEN`: storage sas token with enough permissions for the plugin
+
+    You need to specify `STORAGE_ACCOUNT` and one of auth ways. If you run it from VM with MSI,
+    just `STORAGE_ACCOUNT` is required. Keep in mind, there is no way to refresh MSI Token, so
+    ensure you setup proper permissions first.
+
+    ```bash
+    docker run -it -e STORAGE_ACCOUNT=<storage> -e STORAGE_ACCESS_KEY=<key> fluent
+    ```
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

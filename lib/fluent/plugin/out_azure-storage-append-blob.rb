@@ -63,7 +63,7 @@ module Fluent
 
         raise ConfigError, 'azure_container needs to be specified' if @azure_container.nil?
 
-        if @azure_storage_access_key.nil? && @azure_storage_sas_token.nil?
+        if (@azure_storage_access_key.nil? || @azure_storage_access_key.empty?) && (@azure_storage_sas_token.nil? || @azure_storage_sas_token.empty?)
           log.info 'Using MSI since neither azure_storage_access_key nor azure_storage_sas_token was provided.'
           @use_msi = true
         end
@@ -105,9 +105,9 @@ module Fluent
         else
           @bs_params = { storage_account_name: @azure_storage_account }
 
-          if !@azure_storage_access_key.nil?
+          if !@azure_storage_access_key.nil? && !@azure_storage_access_key.empty?
             @bs_params.merge!({ storage_access_key: @azure_storage_access_key })
-          elsif !@azure_storage_sas_token.nil?
+          elsif !@azure_storage_sas_token.nil? && !@azure_storage_sas_token.empty?
             @bs_params.merge!({ storage_sas_token: @azure_storage_sas_token })
           end
 
