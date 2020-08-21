@@ -1,5 +1,7 @@
 require 'helper'
 require 'fluent/plugin/out_azure-storage-append-blob.rb'
+require 'azure/core/http/http_response'
+require 'azure/core/http/http_error'
 
 include Fluent::Test::Helpers
 
@@ -81,6 +83,55 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
       path = d.instance.instance_variable_get(:@path)
       slice = path_slicer.call(path)
       assert_equal slice, Time.now.utc.strftime('log/%Y/%m/%d')
+    end
+  end
+
+  # This class is used to create an Azure::Core::Http::HTTPError. HTTPError parses
+  # a response object when it is created.
+  class FakeResponse
+    def initialize(status=404)
+      @status = status
+      @body = "body"
+      @headers = {}
+    end
+
+    attr_reader :status
+    attr_reader :body
+    attr_reader :headers
+  end
+
+  # This class is used to test plugin functions which interact with the blob service
+  class FakeBlobService
+    def initialize(status)
+      @response = Azure::Core::Http::HttpResponse.new(FakeResponse.new(status))
+    end
+
+    def get_container_properties(container)
+      unless @response.status_code == 200
+        raise Azure::Core::Http::HTTPError.new(@response)
+      end
+    end
+  end
+
+  sub_test_case 'test container_exists' do
+    test 'container 404 returns false' do
+      d = create_driver
+      d.instance.instance_variable_set(:@bs, FakeBlobService.new(404))
+      assert_false d.instance.container_exists? "anything"
+    end
+
+    test 'existing container returns true' do
+      d = create_driver
+      d.instance.instance_variable_set(:@bs, FakeBlobService.new(200))
+      assert_true d.instance.container_exists? "anything"
+    end
+
+    test 'unexpected exception raises' do
+      d = create_driver
+      d.instance.instance_variable_set(:@bs, FakeBlobService.new(500))
+      assert_raise_kind_of Azure::Core::Http::HTTPError do
+        d.instance.container_exists? "anything"
+      end
     end
   end
 end
