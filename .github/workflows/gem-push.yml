@@ -2,6 +2,10 @@ name: Ruby Gem
 
 on:
   workflow_dispatch:
+    inputs:
+      otp:
+        description: 'One Time Password'     
+        required: true
 
 jobs:
   build:
@@ -21,6 +25,7 @@ jobs:
         touch $HOME/.gem/credentials
         chmod 0600 $HOME/.gem/credentials
         printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > $HOME/.gem/credentials
+        gem signin --otp ${{ github.event.inputs.otp }} 
         gem build *.gemspec
         gem push *.gem
       env:
