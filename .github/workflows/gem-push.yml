@@ -25,8 +25,7 @@ jobs:
         touch $HOME/.gem/credentials
         chmod 0600 $HOME/.gem/credentials
         printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > $HOME/.gem/credentials
-        gem signin --otp ${{ github.event.inputs.otp }} 
         gem build *.gemspec
-        gem push *.gem
+        gem push *.gem --otp ${{ github.event.inputs.otp }}
       env:
         RUBYGEMS_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
