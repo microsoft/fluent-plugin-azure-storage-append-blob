@@ -107,6 +107,12 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
   class FakeBlobService
     def initialize(status)
       @response = Azure::Core::Http::HttpResponse.new(FakeResponse.new(status))
+      @blocks = []
+    end
+    attr_reader :blocks
+
+    def append_blob_block(container, path, data)
+      @blocks.append(data)
     end
 
     def get_container_properties(container)
@@ -132,6 +138,47 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
       assert_raise_kind_of Azure::Core::Http::HTTPError do
         d.instance.container_exists? "anything"
       end
+    end
+  end
+
+  # Override the block size limit so that mocked requests do not require huge buffers
+  class Fluent::Plugin::AzureStorageAppendBlobOut
+    AZURE_BLOCK_SIZE_LIMIT = 10
+  end
+
+  sub_test_case 'test append blob buffering' do
+    def fake_appended_blocks(content)
+      # run the append on the fake blob service, return a list of append request buffers
+      svc = FakeBlobService.new(200)
+      d = create_driver service: svc
+      d.instance.send(:append_blob, content, nil)
+      svc.blocks
+    end
+
+    test 'short buffer appends once' do
+      content = '123456789'
+      blocks = fake_appended_blocks content
+      assert_equal [content], blocks
+    end
+
+    test 'single character appends once' do
+      content = '1'
+      blocks = fake_appended_blocks content
+      assert_equal [content], blocks
+    end
+
+    test 'empty appends once' do
+      content = ''
+      blocks = fake_appended_blocks content
+      assert_equal [''], blocks
+    end
+
+    test 'long buffer appends multiple times' do
+      limit = Fluent::Plugin::AzureStorageAppendBlobOut::AZURE_BLOCK_SIZE_LIMIT
+      buf_1 = 'a' * limit
+      buf_2 = 'a' * 3
+      blocks = fake_appended_blocks buf_1 + buf_2
+      assert_equal [buf_1, buf_2], blocks
     end
   end
 end
