@@ -27,20 +27,23 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
     path log
   ).freeze
 
-  def create_driver(conf = CONFIG)
-    Fluent::Test::Driver::Output.new(Fluent::Plugin::AzureStorageAppendBlobOut).configure(conf)
+  def create_driver(conf: CONFIG, service: nil)
+    d = Fluent::Test::Driver::Output.new(Fluent::Plugin::AzureStorageAppendBlobOut).configure(conf)
+    d.instance.instance_variable_set(:@bs, service)
+    d.instance.instance_variable_set(:@azure_storage_path, 'storage_path')
+    d
   end
 
   sub_test_case 'test config' do
     test 'config should reject with no azure container' do
       assert_raise Fluent::ConfigError do
-        create_driver(%(
+        create_driver conf: %(
           azure_storage_account test_storage_account
           azure_storage_access_key MY_FAKE_SECRET
           time_slice_format        %Y%m%d-%H
           time_slice_wait          10m
           path log
-        ))
+        )
       end
     end
 
@@ -54,7 +57,7 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
     end
 
     test 'config with managed identity enabled should set instance variables' do
-      d = create_driver(MSI_CONFIG)
+      d = create_driver conf: MSI_CONFIG
       assert_equal 'test_storage_account', d.instance.azure_storage_account
       assert_equal 'test_container', d.instance.azure_container
       assert_equal true, d.instance.use_msi
@@ -68,7 +71,7 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
   sub_test_case 'test path slicing' do
     test 'test path_slicing' do
       config = CONFIG.clone.gsub(/path\slog/, 'path log/%Y/%m/%d')
-      d = create_driver(config)
+      d = create_driver conf: config
       path_slicer = d.instance.instance_variable_get(:@path_slicer)
       path = d.instance.instance_variable_get(:@path)
       slice = path_slicer.call(path)
@@ -78,7 +81,7 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
     test 'path slicing utc' do
       config = CONFIG.clone.gsub(/path\slog/, 'path log/%Y/%m/%d')
       config << "\nutc\n"
-      d = create_driver(config)
+      d = create_driver conf: config
       path_slicer = d.instance.instance_variable_get(:@path_slicer)
       path = d.instance.instance_variable_get(:@path)
       slice = path_slicer.call(path)
@@ -115,20 +118,17 @@ class AzureStorageAppendBlobOutTest < Test::Unit::TestCase
 
   sub_test_case 'test container_exists' do
     test 'container 404 returns false' do
-      d = create_driver
-      d.instance.instance_variable_set(:@bs, FakeBlobService.new(404))
+      d = create_driver service: FakeBlobService.new(404)
       assert_false d.instance.container_exists? "anything"
     end
 
     test 'existing container returns true' do
-      d = create_driver
-      d.instance.instance_variable_set(:@bs, FakeBlobService.new(200))
+      d = create_driver service: FakeBlobService.new(200)
       assert_true d.instance.container_exists? "anything"
     end
 
     test 'unexpected exception raises' do
-      d = create_driver
-      d.instance.instance_variable_set(:@bs, FakeBlobService.new(500))
+      d = create_driver service: FakeBlobService.new(500)
       assert_raise_kind_of Azure::Core::Http::HTTPError do
         d.instance.container_exists? "anything"
       end
