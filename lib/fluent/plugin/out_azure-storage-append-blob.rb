@@ -203,7 +203,7 @@ module Fluent
           begin
             size = [content.length - position, AZURE_BLOCK_SIZE_LIMIT].min
             log.debug "azure_storage_append_blob: append_blob.chunk: content[#{position}..#{position + size}]"
-            @bs.append_blob_block(@azure_container, @azure_storage_path, content[position..position + size])
+            @bs.append_blob_block(@azure_container, @azure_storage_path, content[position..position + size - 1])
             position += size
             break if position >= content.length
           rescue Azure::Core::Http::HTTPError => e
