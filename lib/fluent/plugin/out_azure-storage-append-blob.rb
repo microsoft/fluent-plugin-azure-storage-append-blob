@@ -23,6 +23,7 @@ module Fluent
       config_param :azure_storage_account, :string, default: nil
       config_param :azure_storage_access_key, :string, default: nil, secret: true
       config_param :azure_storage_sas_token, :string, default: nil, secret: true
+      config_param :azure_storage_connection_string, :string, default: nil, secret: true
       config_param :azure_container, :string, default: nil
       config_param :azure_imds_api_version, :string, default: '2019-08-15'
       config_param :azure_token_refresh_interval, :integer, default: 60
@@ -63,7 +64,9 @@ module Fluent
 
         raise ConfigError, 'azure_container needs to be specified' if @azure_container.nil?
 
-        if (@azure_storage_access_key.nil? || @azure_storage_access_key.empty?) && (@azure_storage_sas_token.nil? || @azure_storage_sas_token.empty?)
+        if (@azure_storage_access_key.nil? || @azure_storage_access_key.empty?) &&
+           (@azure_storage_sas_token.nil? || @azure_storage_sas_token.empty?) &&
+           (@azure_storage_connection_string.nil? || @azure_storage_connection_string.empty?)
           log.info 'Using MSI since neither azure_storage_access_key nor azure_storage_sas_token was provided.'
           @use_msi = true
         end
@@ -102,6 +105,8 @@ module Fluent
           end
           sleep 0.1 while renew_token.status != 'sleep'
           renew_token.run
+        elsif !@azure_storage_connection_string.nil? && !@azure_storage_connection_string.empty?
+          @bs = Azure::Storage::Blob::BlobService.create_from_connection_string(@azure_storage_connection_string)
         else
           @bs_params = { storage_account_name: @azure_storage_account }
 
@@ -112,6 +117,7 @@ module Fluent
           end
 
           @bs = Azure::Storage::Blob::BlobService.create(@bs_params)
+
         end
 
         ensure_container
@@ -142,25 +148,21 @@ module Fluent
           append_blob(content, metadata)
           @last_azure_storage_path = @azure_storage_path
         ensure
-          begin
-            tmp.close(true)
-          rescue StandardError
-            nil
-          end
+          tmp.close(true) rescue nil
         end
       end
 
       def container_exists?(container)
         begin
           @bs.get_container_properties(container)
-        rescue Azure::Core::Http::HTTPError => ex
-          if ex.status_code == 404 # container does not exist
+        rescue Azure::Core::Http::HTTPError => e
+          if e.status_code == 404 # container does not exist
             return false
           else
             raise
           end
         end
-        return true
+        true
       end
 
       private
@@ -175,14 +177,12 @@ module Fluent
         end
       end
 
-      private
-
       def generate_log_name(metadata, index)
         time_slice = if metadata.timekey.nil?
                        ''.freeze
                      else
                        Time.at(metadata.timekey).utc.strftime(@time_slice_format)
-          end
+                     end
 
         path = @path_slicer.call(@path)
         values_for_object_key = {
@@ -193,8 +193,6 @@ module Fluent
         storage_path = @azure_object_key_format.gsub(/%{[^}]+}/, values_for_object_key)
         @azure_storage_path = extract_placeholders(storage_path, metadata)
       end
-
-      private
 
       def append_blob(content, metadata)
         position = 0

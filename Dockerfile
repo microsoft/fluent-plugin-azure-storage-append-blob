@@ -18,6 +18,7 @@ RUN echo "<source>\n\
   @type azure-storage-append-blob\n\
   azure_storage_account             \"#{ENV['STORAGE_ACCOUNT']}\"\n\
   azure_storage_access_key          \"#{ENV['STORAGE_ACCESS_KEY']}\"\n\
+  azure_storage_connection_string   \"#{ENV['STORAGE_CONNECTION_STRING']}\"\n\
   azure_storage_sas_token           \"#{ENV['STORAGE_SAS_TOKEN']}\"\n\
   azure_container                   fluentd\n\
   auto_create_container             true\n\

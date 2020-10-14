@@ -27,6 +27,7 @@ And then execute:
 
       azure_storage_account             <your azure storage account>
       azure_storage_access_key          <your azure storage access key> # leave empty to use MSI
+      azure_storage_connection_string   <your azure storage connection string> # leave empty to use MSI
       azure_storage_sas_token           <your azure storage sas token> # leave empty to use MSI
       azure_imds_api_version            <Azure Instance Metadata Service API Version> # only used for MSI
       azure_token_refresh_interval      <refresh interval in min> # only used for MSI
@@ -50,12 +51,12 @@ And then execute:
 
 Your Azure Storage Account Name. This can be retrieved from Azure Management portal.
 
-### `azure_storage_access_key` or `azure_storage_sas_token` (Either required or both empty to use MSI)
+### `azure_storage_access_key` or `azure_storage_sas_token` or `azure_storage_connection_string` (Any required or all empty to use MSI)
 
-Your Azure Storage Access Key (Primary or Secondary) or shared access signature (SAS) token.
+Your Azure Storage Access Key (Primary or Secondary) or shared access signature (SAS) token or full connection string.
 This also can be retrieved from Azure Management portal.
 
-If both are empty, the plugin will use the local Managed Identity endpoint to obtain a token for the target storage account.
+If all are empty, the plugin will use the local Managed Identity endpoint to obtain a token for the target storage account.
 
 ### `azure_imds_api_version` (Optional, only for MSI)
 
