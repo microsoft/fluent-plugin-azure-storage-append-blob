@@ -1,3 +1,9 @@
+# Deprecated
+
+This project is no longer maintained by Microsoft.
+
+Github Repo is still available, so you can fork & develop this project moving forward.
+
 # fluent-plugin-azure-storage-append-blob
 
 [Fluentd](https://fluentd.org/) out plugin to do something.
